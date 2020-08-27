@@ -1,0 +1,171 @@
+public class Encryption {
+
+    public static char[] letters;
+
+    public static void encryption(String password) {
+
+        //Separate all letters of String to change it to a number
+        char[] encrypts = password.toCharArray();
+        int passwordLength = password.length();
+
+        // set number for any letter of Password
+        char a = ' ';
+        letters = new char[95];
+        for (int i = 0; i < 95; i++) {
+            letters[i] = a;
+            a++;
+        }
+
+        //Get the number of any letters and save it into an array
+        int[] numbers = new int[passwordLength];
+        /*If the String was even count letter the length of array will be even
+        then we cant place it into a odd count row matrix
+        if this happened we should add 1 to the length of array and assign
+        the last index of the array to 0 because we dont have a letter in this index*/
+        if (passwordLength % 2 == 1) {
+            numbers = new int[passwordLength + 1];
+            numbers[passwordLength] = 0;
+        }
+        int firstCounter = 0;
+        for (char i : encrypts) {
+            for (int j = 0; j < letters.length; j++) {
+                if (i == letters[j]) {
+                    numbers[firstCounter] = j;
+                    firstCounter++;
+                }
+            }
+        }
+
+        //Making the matrix A
+        int matrixRow = (passwordLength / 2);
+        /*if the String was even count letter the number of row for matrix
+        will be make matrix with row count minus one then we cant store the
+        last number for the last letter in matrix to avoid from this we should
+        add on to the row count of matrix to store the last number for last lettter
+        in the matrix*/
+        if (passwordLength % 2 == 1) {
+            matrixRow = (passwordLength / 2 + 1);
+        }
+        int matrixColumn = 2;   //number of matrix column
+        int[][] matrixA = new int[matrixRow][matrixColumn];
+        firstCounter = 0;
+        for (int i = 0; i < matrixRow; i++) {
+            for (int j = 0; j < matrixColumn; j++) {
+                matrixA[i][j] = numbers[firstCounter];
+                firstCounter++;
+            }
+        }
+
+        //Making the matrix B
+        int[][] matrixB = {{1, 2}, {2, 3}};
+
+        //Making the matrix X
+        int[][] matrixX = new int[matrixRow][matrixColumn];
+        int firstNumber = 0, secondNumber = 0, row = 0, column = 0, count = 0;
+        for (int i = 0; i < matrixRow; i++) {
+            for (int j = 0; j < matrixColumn; j++) {
+                for (int k = 0; k < matrixColumn; k++) {
+                    if (k == 0) {
+                        firstNumber = matrixA[i][count] * matrixB[row][column];
+                        count = 1;
+                        row = 1;
+                    }
+                    if (k == 1) {
+                        secondNumber = matrixA[i][count] * matrixB[row][column];
+                        count = 0;
+                        row = 0;
+                        column = 1;
+                    }
+                }
+                matrixX[i][j] = firstNumber + secondNumber;
+            }
+            row = 0;
+            column = 0;
+        }
+
+        //Print the matrix X
+        System.out.println("The Encryption of \"" + password + "\" is:");
+        System.out.print("[");
+        for (int i = 0; i < matrixRow; i++) {
+            for (int j = 0; j < matrixColumn; j++) {
+                System.out.print(matrixX[i][j]);
+                if (i < matrixRow - 1 || j < matrixColumn - 1) {
+                    System.out.print(" ");
+                }
+            }
+        }
+        System.out.println("]");
+
+    }
+
+    public static void decryption(int[] matrix) {
+
+        //Making matrix B
+        int[][] matrixB = {{-3, 2}, {2, -1}};
+
+        //Making matrix X
+        int matrixRow = matrix.length / 2, matrixColumn = 2, counter = 0;
+        int[][] matrixX = new int[matrixRow][matrixColumn];
+        for (int i = 0; i < matrixRow; i++) {
+            for (int j = 0; j < matrixColumn; j++) {
+                matrixX[i][j] = matrix[counter];
+                counter++;
+            }
+        }
+
+        //Making matrix A
+        int[][] matrixA = new int[matrixRow][matrixColumn];
+        int firstNumber = 0, secondNumber = 0, row = 0, column = 0, count = 0;
+        for (int i = 0; i < matrixX.length; i++) {
+            for (int j = 0; j < matrixX[i].length; j++) {
+                for (int k = 0; k < matrixX[i].length; k++) {
+                    if (k == 0) {
+                        firstNumber = matrixX[i][count] * matrixB[row][column];
+                    }
+                    if (k == 1) {
+                        count = 1;
+                        row = 1;
+                        secondNumber = matrixX[i][count] * matrixB[row][column];
+                    }
+                }
+                count = 0;
+                row = 0;
+                column = 1;
+                matrixA[i][j] = firstNumber + secondNumber;
+            }
+            row = 0;
+            column = 0;
+        }
+
+        //Change matrix A to row matrix
+        int[] arrayNumbers = new int[matrixRow * matrixColumn];
+        counter = 0;
+        for (int i = 0; i < matrixRow; i++) {
+            for (int j = 0; j < matrixColumn; j++) {
+                arrayNumbers[counter] = matrixA[i][j];
+                counter++;
+            }
+        }
+
+        //Print the matrix A
+        System.out.print("\nThe Decryption of [");
+        for (int i = 0; i < matrix.length; i++) {
+            System.out.print(matrix[i]);
+            if (i < matrix.length - 1) {
+                System.out.print(" ");
+            }
+        }
+        System.out.println("] is:");
+        for (int key : arrayNumbers) {
+            //change number to letter from the array
+            char a = (char) Character.codePointAt(letters, key);
+            System.out.print(a);
+        }
+    }
+
+    public static void main(String[] args) {
+        encryption("1s 4Runner a Car?");
+        int[] encryptionMatrix = {183, 283, 40, 60, 220, 355, 234, 390, 233, 384, 130, 195, 70, 105, 229, 376, 31, 62};
+        decryption(encryptionMatrix);
+    }
+}
